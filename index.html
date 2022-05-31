@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        *{
+            box-sizing: border-box;
+        }
+        .box {
+            max-width: 400px;
+            min-height: 100px;
+            border-radius: 10px;
+            background: #fff;
+            box-shadow: 2px 2px 5px rgb(0, 0, 0, 30%);
+            padding: 20px;
+            margin: 20px auto;
+            position: relative;
+        }
+        .box h2 {
+            font-size: 22px;
+            text-align: center;
+            font-family: sans-serif;
+        }
+        input[type="text"],
+        textarea,
+        button{
+            width: 100%;
+            padding: 15px 20px;
+            border-radius:50px;
+            border: 1px solid #000;
+            margin-bottom: 20px;
+            transition: 0.5s;
+            font-size: 14px;
+            font-family: sans-serif;
+           
+        }
+        button{
+            border: none;
+            background: blueviolet;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.5s;
+        }
+        input[type="text"]:hover,
+        textarea:hover,
+        button:hover{
+            box-shadow: 2px 2px 5px rgb(0, 0, 0,30%);
+        }
+        h5,h3{
+            font-family: sans-serif;
+        }
+        .edit-icon {
+            position: absolute;
+            top: 0px;
+            width: 35px;
+            right: -50px;
+            padding: 10px;
+            border-radius: 5px;
+            background: blueviolet;
+            box-shadow: 2px 2px 5px rgb(0, 0, 0,30%);
+            cursor: pointer;
+            transition: 0.5s;
+        }
+        .edit-icon:hover {
+            background: blue;
+        }
+        .delete-icon {
+            position: absolute;
+            top: 42px;
+            width: 35px;
+            right: -50px;
+            padding: 10px;
+            border-radius: 5px;
+            background: red;
+            box-shadow: 2px 2px 5px rgb(0, 0, 0,30%);
+            cursor: pointer;
+            transition: 0.5s;
+        }
+        .delete-icon:hover {
+            background: darkred;
+        }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h2>Facebook Comments</h2>
+        <form action="">
+            <input type="text" id="name" placeholder="Name">
+            <textarea name="" id="comment" placeholder="Comment"></textarea>
+            <div class="btn">
+                <button id="submit">Submit</button>
+            </div>
+        </form>
+    </div>
+    
+    <div class="data">
+       
+    </div>
+    
+</body>
+<script>
+const submit = document.getElementById('submit');
+
+submit.addEventListener("click", function(e){
+    e.preventDefault();
+    let name = document.getElementById('name').value;
+    let comment = document.getElementById('comment').value;
+    
+    
+
+    if(name && comment){
+        let datafetch = localStorage.getItem('comments') ? JSON.parse(localStorage.getItem('comments')) : [];
+        localStorage.setItem('comments', JSON.stringify(datafetch));
+        let data = {
+            name,
+            comment
+        };
+        
+        if(data){
+            
+            datafetch.push(data);
+            localStorage.setItem('comments',JSON.stringify(datafetch));
+            dataRender();
+            formClear()
+        } else {
+            localStorage.getItem('comments', '[]');
+        }
+
+    } else {
+        alert('Please data insert into fields.');
+    }
+
+});
+dataRender();
+function dataRender(){
+    let output = document.getElementsByClassName('data')[0];
+    let getdata = JSON.parse(localStorage.getItem('comments'));
+    
+    let innerHTML = '';
+
+    if(getdata){
+        getdata.forEach((element,index) => {
+           innerHTML += `
+            <div class="box">
+                <img src="./pencil-solid.svg" class="edit-icon" data-edit="${index}" onclick="updateData(${index},event)">
+                <img src="./trash-can-solid.svg" data-delete="${index}" onclick="removeData(${index},event)" class="delete-icon">
+                <h5>Name:</h5>
+                <h3>${element.name}</h3> 
+                <hr>
+                <h5>Comment: </h5>
+                <h3>${element.comment}</h3> 
+            </div>
+            `;
+        });
+        output.innerHTML = innerHTML;
+    }
+}
+
+function removeData(i){
+    let fetchdata = localStorage.getItem('comments');
+    fetchdata = JSON.parse(fetchdata);
+    fetchdata.splice(i,1);
+    localStorage.setItem('comments',JSON.stringify(fetchdata));
+    dataRender();
+};
+
+function updateData(i){
+    let datafetch = localStorage.getItem('comments');
+    datafetch = JSON.parse(datafetch);
+
+    document.getElementById('name').value = datafetch[i].name;
+    document.getElementById('comment').value = datafetch[i].comment;
+    document.getElementsByClassName('btn')[0].innerHTML = `
+        <button onclick="update(${i},event)">Update</button>
+    `;
+}
+
+function update(i,e){
+    e.preventDefault();
+    let datafetch = localStorage.getItem('comments');
+    datafetch = JSON.parse(datafetch);
+    let name = document.getElementById('name').value;
+    let comment = document.getElementById('comment').value;
+    let data = {
+        name,
+        comment
+    };
+    console.log(i);
+    datafetch.splice(i,1,data);
+    localStorage.setItem('comments', JSON.stringify(datafetch));
+    dataRender();
+    formClear()
+    
+}
+
+function formClear(){
+    let name = document.getElementById('name');
+    let comment = document.getElementById('comment');
+
+    name.value = '';
+    comment.value = '';
+    document.getElementsByClassName('btn')[0].innerHTML = `
+        <button id="submit">Submit</button>
+    `;
+}
+
+</script>
+
+
+
+</html>
+
